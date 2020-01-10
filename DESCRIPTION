@@ -13,3 +13,5 @@ Imports:
   httr,
   jsonlite
 RoxygenNote: 7.0.2
+URL: http://github.com/pipitone/drugshortagesr
+BugReports: http://github.com/pipitone/drugshortagesr/issues
