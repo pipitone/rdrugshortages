@@ -22,16 +22,11 @@ dsc_login = function (email, password) {
 #' Return a single page of search results
 #'
 #' @param authtoken Authorization token obtained from dsc_login()
-#' @param query A named list() of query parameters. See the web API
-#'   documentation for details
+#' @param query A named list() of query parameters.
 #'
 #' @return A JSON blog of search results. The 'data' field contains the matching records.
-#' @export
-#'
 #' @examples
-#' token = login(email, password)
-#' results = dsc_search_single_page(token, query=list(term="venlafaxine"))
-dsc_search_single_page = function(authtoken, query) {
+.dsc_search_single_page = function(authtoken, query) {
   if (missing(query)) {
     query = list()
   }
@@ -42,21 +37,20 @@ dsc_search_single_page = function(authtoken, query) {
   return(jsonlite::fromJSON(httr::content(r,as="text",encoding="UTF-8")))
 }
 
-#' Return all records from a search as a JSON object
+#' Return all records from a search
 #'
 #' @param authtoken
 #' @param query
 #'
 #' @return
-#' @export
 #'
 #' @examples
-dsc_search_json = function(authtoken, query) {
+.dsc_search_all = function(authtoken, query) {
   if (missing(query)) {
     query = list()
   }
   query[["limit"]] = "1000"  # optimisitic...
-  results = dsc_search_single_page(authtoken, query)
+  results = .dsc_search_single_page(authtoken, query)
   #TODO: empty search results
   #TODO: total < limit results
 
@@ -69,21 +63,38 @@ dsc_search_json = function(authtoken, query) {
   for (offset in seq(offset+limit,total-1,limit)) {
     query[["offset"]] = offset
 
-    results = do.call(dsc_search_single_page,list(authtoken,query))
+    results = do.call(.dsc_search_single_page,list(authtoken,query))
     all_results = c(all_results,list(results$data))
   }
   return(jsonlite::rbind_pages(all_results))
 }
 
-#' Return all search results as a flat-ish data.frame
+#' DSC search results
 #'
-#' @param authtoken
-#' @param query
 #'
-#' @return
+#' @param authtoken Authorization token obtained from dsc_login()
+#' @param query A named list() of query parameters.
+#'   See the DSC Web API documentation for details on query parameters:
+#'   https://www.drugshortagescanada.ca/blog/52
+#' @param single_page If TRUE only returns the first page of results as a JSON
+#'   object. This is useful only if you care about the metadata about the search
+#'   returned by the database. See the API documentation for details.
+#' @param flattened If TRUE returns a flat-ish data.frame of the results using
+#'   jsonlite::flatten. This does not apply if single_page = TRUE
+#' @return Results as a data.fram, or JSON object if single_page = T
 #' @export
-#' @examples
 #'
-dsc_search = function(authtoken, query) {
-  jsonlite::flatten(dsc_search_json(authtoken, query))
+#' @examples
+#' token = login(email, password)
+#' results = dsc_search(token, query=list(term="venlafaxine"))
+dsc_search = function(authtoken, query = list(), single_page = F, flattened = T) {
+  if (single_page) {
+    results = .dsc_search_single_page(authtoken, query)
+  } else {
+    results = .dsc_search_all(authtoken, query)
+    if (flattened) {
+      return(jsonlite::flatten(results))
+    }
+  }
+  return(results)
 }

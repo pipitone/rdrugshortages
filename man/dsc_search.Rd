@@ -2,19 +2,31 @@
 % Please edit documentation in R/drugshortagescanada.R
 \name{dsc_search}
 \alias{dsc_search}
-\title{Return all search results as a flat-ish data.frame}
+\title{DSC search results}
 \usage{
-dsc_search(authtoken, query)
+dsc_search(authtoken, query = list(), single_page = F, flattened = T)
 }
 \arguments{
-\item{query}{}
+\item{authtoken}{Authorization token obtained from dsc_login()}
+
+\item{query}{A named list() of query parameters.
+See the DSC Web API documentation for details on query parameters:
+https://www.drugshortagescanada.ca/blog/52}
+
+\item{single_page}{If TRUE only returns the first page of results as a JSON
+object. This is useful only if you care about the metadata about the search
+returned by the database. See the API documentation for details.}
+
+\item{flattened}{If TRUE returns a flat-ish data.frame of the results using
+jsonlite::flatten. This does not apply if single_page = TRUE}
 }
 \value{
-
+Results as a data.fram, or JSON object if single_page = T
 }
 \description{
-Return all search results as a flat-ish data.frame
+DSC search results
 }
 \examples{
-
+token = login(email, password)
+results = dsc_search(token, query=list(term="venlafaxine"))
 }

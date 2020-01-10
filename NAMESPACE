@@ -2,5 +2,3 @@
 
 export(dsc_login)
 export(dsc_search)
-export(dsc_search_json)
-export(dsc_search_single_page)
