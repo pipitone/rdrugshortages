@@ -1,0 +1,15 @@
+Package: drugshortagesr
+Type: Package
+Title: Drug Shortages API
+Version: 0.1.0
+Authors@R: person("Jon", "Pipitone", email = "jon@pipitone.ca", role = c("aut", "cre"))
+Maintainer: Jon Pipitone <jon@pipitone.ca>
+Description: Accesses drug shortages data
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports:
+  dplyr,
+  httr,
+  jsonlite
+RoxygenNote: 7.0.2
