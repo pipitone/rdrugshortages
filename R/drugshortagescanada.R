@@ -14,17 +14,17 @@
 #' @export
 #'
 #' @examples
-#'   dsc_login("bill.gates@microsoft.com", "passw0rd!")
+#'   dsc_login('bill.gates@microsoft.com', 'passw0rd!')
 #'
 #'   # You can also set environment variables
-#'   Sys.setenv("dsc.email" = "bill.gates@microsoft.com")
-#'   Sys.setenv("dsc.password" = "passw0rd!")
+#'   Sys.setenv('dsc.email' = 'bill.gates@microsoft.com')
+#'   Sys.setenv('dsc.password' = 'passw0rd!')
 #'
 #'   dsc_login()
 #'
 #'   # These credentials can also be stored in the .Renviron file in the current
 #'   # directory
-dsc_login = function (email, password) {
+dsc_login = function(email, password) {
   if (missing(email)) {
     email = Sys.getenv("dsc.email", unset = NA)
   }
@@ -34,12 +34,11 @@ dsc_login = function (email, password) {
   if (is.null(email) | is.null(password)) {
     stop("email/password must be specified")
   }
-
-  r = httr::POST("https://www.drugshortagescanada.ca/api/v1/login",
-           body = list("email" = email, "password" = password))
+  
+  r = httr::POST("https://www.drugshortagescanada.ca/api/v1/login", body = list(email = email, password = password))
   httr::stop_for_status(r, httr::content(r, as = "text"))
-  authtoken =  httr::headers(r)$`auth-token`
-  Sys.setenv("dsc.authtoken" = authtoken)
+  authtoken = httr::headers(r)$`auth-token`
+  Sys.setenv(dsc.authtoken = authtoken)
 }
 
 
@@ -49,21 +48,19 @@ dsc_login = function (email, password) {
 #'
 #' @return A JSON blog of search results. The 'data' field contains the matching records.
 .dsc_search_single_page = function(...) {
-
+  
   if (!"dsc.authtoken" %in% names(Sys.getenv())) {
     try(dsc_login())
   }
-
+  
   authtoken = Sys.getenv("dsc.authtoken")
   if (authtoken == "") {
-      stop("Environment variable dsc.authtoken not set. See dsc_login()")
+    stop("Environment variable dsc.authtoken not set. See dsc_login()")
   }
-
-  r = httr::GET("https://www.drugshortagescanada.ca/api/v1/search",
-          httr::add_headers("auth-token" = authtoken),
-          query = list(...))
+  
+  r = httr::GET("https://www.drugshortagescanada.ca/api/v1/search", httr::add_headers(`auth-token` = authtoken), query = list(...))
   httr::stop_for_status(r, httr::content(r, as = "text"))
-  return(jsonlite::fromJSON(httr::content(r,as="text",encoding="UTF-8")))
+  return(jsonlite::fromJSON(httr::content(r, as = "text", encoding = "UTF-8")))
 }
 
 #' Return all records from a search
@@ -75,21 +72,20 @@ dsc_login = function (email, password) {
   query = list(...)
   query[["limit"]] = "1000"  # optimisitic...
   results = do.call(.dsc_search_single_page, query)
-
-  #TODO: empty search results
-  #TODO: total < limit results
-
+  
+  # TODO: empty search results TODO: total < limit results
+  
   limit = results$limit
   total = results$total
   offset = results$offset
-
+  
   all_results = list(results$data)
-
-  for (offset in seq(offset+limit,total-1,limit)) {
+  
+  for (offset in seq(offset + limit, total - 1, limit)) {
     query[["offset"]] = offset
-
-    results = do.call(.dsc_search_single_page,query)
-    all_results = c(all_results,list(results$data))
+    
+    results = do.call(.dsc_search_single_page, query)
+    all_results = c(all_results, list(results$data))
   }
   return(jsonlite::rbind_pages(all_results))
 }
@@ -108,7 +104,7 @@ dsc_login = function (email, password) {
 #' @export
 #'
 #' @examples
-#' results = dsc_search(term = "venlafaxine")
+#' results = dsc_search(term = 'venlafaxine')
 dsc_search = function(..., single_page = F, flattened = T) {
   if (single_page) {
     results = do.call(.dsc_search_single_page, list(...))
