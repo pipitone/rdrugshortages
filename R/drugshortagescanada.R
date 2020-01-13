@@ -36,11 +36,8 @@ dsc_login = function (email, password) {
   }
 
   r = httr::POST("https://www.drugshortagescanada.ca/api/v1/login",
-           body = list(
-             "email" = email,
-             "password" = password
-           ))
-  httr::stop_for_status(r)
+           body = list("email" = email, "password" = password))
+  httr::stop_for_status(r, httr::content(r, as = "text"))
   authtoken =  httr::headers(r)$`auth-token`
   Sys.setenv("dsc.authtoken" = authtoken)
 }
@@ -65,7 +62,7 @@ dsc_login = function (email, password) {
   r = httr::GET("https://www.drugshortagescanada.ca/api/v1/search",
           httr::add_headers("auth-token" = authtoken),
           query = list(...))
-  httr::stop_for_status(r)
+  httr::stop_for_status(r, httr::content(r, as = "text"))
   return(jsonlite::fromJSON(httr::content(r,as="text",encoding="UTF-8")))
 }
 
