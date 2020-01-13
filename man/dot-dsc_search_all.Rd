@@ -4,13 +4,13 @@
 \alias{.dsc_search_all}
 \title{Return all records from a search}
 \usage{
-.dsc_search_all(authtoken, query)
+.dsc_search_all(...)
 }
 \arguments{
-\item{query}{}
+\item{...}{name = value pairs of query parameters.}
 }
 \value{
-
+nested data.frame of results
 }
 \description{
 Return all records from a search

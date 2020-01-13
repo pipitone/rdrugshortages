@@ -2,19 +2,32 @@
 % Please edit documentation in R/drugshortagescanada.R
 \name{dsc_login}
 \alias{dsc_login}
-\title{Login}
+\title{Login to the drugshortagescanada.ca web API}
 \usage{
 dsc_login(email, password)
 }
 \arguments{
-\item{email}{Your email address used to log into the site}
+\item{email}{Your email address used to log into the DSC}
 
 \item{password}{Your password}
 }
 \description{
-This function logs in to drugshortagescanada.ca via the Web API and returns
-an authorization token if successful.
+This function logs in to the DSC web API and stores the auth-token in the
+'dsc.authtoken' R environment variable so that it is accessible dsc_search()
+}
+\details{
+You should not need usually to call this function directly, as it is called
+by dsc_search() if the auth-token has not be set.
+
+The username and password can be passed into the function, or can be set via
+options(). See the example below
 }
 \examples{
-token = dsc_login("bill.gates@microsoft.com", "passw0rd!")
+  dsc_login("bill.gates@microsoft.com", "passw0rd!")
+
+  # will also use options
+  options("dsc.email" = "bill.gates@microsoft.com")
+  options("dsc.password" = "passw0rd!")
+
+  dsc_login()
 }

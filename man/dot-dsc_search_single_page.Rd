@@ -4,12 +4,10 @@
 \alias{.dsc_search_single_page}
 \title{Return a single page of search results}
 \usage{
-.dsc_search_single_page(authtoken, query)
+.dsc_search_single_page(...)
 }
 \arguments{
-\item{authtoken}{Authorization token obtained from dsc_login()}
-
-\item{query}{A named list() of query parameters.}
+\item{...}{name = value pairs of query parameters.}
 }
 \value{
 A JSON blog of search results. The 'data' field contains the matching records.

@@ -4,12 +4,10 @@
 \alias{dsc_search}
 \title{DSC search results}
 \usage{
-dsc_search(authtoken, query = list(), single_page = F, flattened = T)
+dsc_search(..., single_page = F, flattened = T)
 }
 \arguments{
-\item{authtoken}{Authorization token obtained from dsc_login()}
-
-\item{query}{A named list() of query parameters.
+\item{...}{A named list of query parameters.
 See the DSC Web API documentation for details on query parameters:
 https://www.drugshortagescanada.ca/blog/52}
 
@@ -27,6 +25,7 @@ Results as a data.fram, or JSON object if single_page = T
 DSC search results
 }
 \examples{
-token = login(email, password)
-results = dsc_search(token, query=list(term="venlafaxine"))
+# assuming credentials are stored in options()
+
+results = dsc_search(term = "venlafaxine")
 }

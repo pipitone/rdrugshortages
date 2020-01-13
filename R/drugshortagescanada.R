@@ -1,56 +1,97 @@
-#' Login
+.onLoad <- function(libname, pkgname) {
+  op <- options()
+  op.dsc <- list(
+    dsc.email = NULL,
+    dsc.password = NULL
+  )
+  toset <- !(names(op.dsc) %in% names(op))
+  if(any(toset)) options(op.dsc[toset])
+
+  invisible()
+}
+
+.onAttach <- function(libname, pkgname) {
+  packageStartupMessage("drugshortagesr: set options dsc.email and dsc.password with your credentials")
+}
+
+#' Login to the drugshortagescanada.ca web API
 #'
-#' This function logs in to drugshortagescanada.ca via the Web API and returns
-#' an authorization token if successful.
+#' This function logs in to the DSC web API and stores the auth-token in the
+#' 'dsc.authtoken' R environment variable so that it is accessible dsc_search()
 #'
-#' @param email Your email address used to log into the site
+#' You should not need usually to call this function directly, as it is called
+#' by dsc_search() if the auth-token has not be set.
+#'
+#' The username and password can be passed into the function, or can be set via
+#' options(). See the example below
+#'
+#' @param email Your email address used to log into the DSC
 #' @param password Your password
 #' @export
+#'
 #' @examples
-#' token = dsc_login("bill.gates@microsoft.com", "passw0rd!")
+#'   dsc_login("bill.gates@microsoft.com", "passw0rd!")
+#'
+#'   # will also use options
+#'   options("dsc.email" = "bill.gates@microsoft.com")
+#'   options("dsc.password" = "passw0rd!")
+#'
+#'   dsc_login()
 dsc_login = function (email, password) {
+  if (missing(email)) {
+    email = getOption("dsc.email")
+  }
+  if (missing(password)) {
+    password = getOption("dsc.password")
+  }
+  if (is.null(email) | is.null(password)) {
+    stop("email/password must be specified")
+  }
+
   r = httr::POST("https://www.drugshortagescanada.ca/api/v1/login",
            body = list(
-             "email" = "jon@pipitone.ca",
-             "password" = "CZjwVE3grhXyqw$r9EjqRp"
+             "email" = email,
+             "password" = password
            ))
   httr::stop_for_status(r)
-  return(httr::headers(r)$`auth-token`)
+  authtoken =  httr::headers(r)$`auth-token`
+  Sys.setenv("dsc.authtoken" = authtoken)
 }
 
 
 #' Return a single page of search results
 #'
-#' @param authtoken Authorization token obtained from dsc_login()
-#' @param query A named list() of query parameters.
+#' @param ... name = value pairs of query parameters.
 #'
 #' @return A JSON blog of search results. The 'data' field contains the matching records.
-#' @examples
-.dsc_search_single_page = function(authtoken, query) {
-  if (missing(query)) {
-    query = list()
+.dsc_search_single_page = function(...) {
+
+  if (!"dsc.authtoken" %in% names(Sys.getenv())) {
+    try(dsc_login())
   }
+
+  authtoken = Sys.getenv("dsc.authtoken")
+  if (authtoken == "") {
+      stop("Environment variable dsc.authtoken not set. See dsc_login()")
+  }
+
   r = httr::GET("https://www.drugshortagescanada.ca/api/v1/search",
           httr::add_headers("auth-token" = authtoken),
-          query = query)
+          query = list(...))
   httr::stop_for_status(r)
   return(jsonlite::fromJSON(httr::content(r,as="text",encoding="UTF-8")))
 }
 
 #' Return all records from a search
 #'
-#' @param authtoken
-#' @param query
+#' @param ... name = value pairs of query parameters.
 #'
-#' @return
-#'
-#' @examples
-.dsc_search_all = function(authtoken, query) {
-  if (missing(query)) {
-    query = list()
-  }
+#' @return  nested data.frame of results
+.dsc_search_all = function(...) {
+  query = list(...)
   query[["limit"]] = "1000"  # optimisitic...
-  results = .dsc_search_single_page(authtoken, query)
+  results = do.call(.dsc_search_single_page, query)
+
   #TODO: empty search results
   #TODO: total < limit results
 
@@ -63,7 +104,7 @@ dsc_login = function (email, password) {
   for (offset in seq(offset+limit,total-1,limit)) {
     query[["offset"]] = offset
 
-    results = do.call(.dsc_search_single_page,list(authtoken,query))
+    results = do.call(.dsc_search_single_page,query)
     all_results = c(all_results,list(results$data))
   }
   return(jsonlite::rbind_pages(all_results))
@@ -71,9 +112,7 @@ dsc_login = function (email, password) {
 
 #' DSC search results
 #'
-#'
-#' @param authtoken Authorization token obtained from dsc_login()
-#' @param query A named list() of query parameters.
+#' @param ... A named list of query parameters.
 #'   See the DSC Web API documentation for details on query parameters:
 #'   https://www.drugshortagescanada.ca/blog/52
 #' @param single_page If TRUE only returns the first page of results as a JSON
@@ -85,13 +124,14 @@ dsc_login = function (email, password) {
 #' @export
 #'
 #' @examples
-#' token = login(email, password)
-#' results = dsc_search(token, query=list(term="venlafaxine"))
-dsc_search = function(authtoken, query = list(), single_page = F, flattened = T) {
+#' # assuming credentials are stored in options()
+#'
+#' results = dsc_search(term = "venlafaxine")
+dsc_search = function(..., single_page = F, flattened = T) {
   if (single_page) {
-    results = .dsc_search_single_page(authtoken, query)
+    results = do.call(.dsc_search_single_page, list(...))
   } else {
-    results = .dsc_search_all(authtoken, query)
+    results = do.call(.dsc_search_all, list(...))
     if (flattened) {
       return(jsonlite::flatten(results))
     }
