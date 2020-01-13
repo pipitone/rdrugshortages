@@ -20,14 +20,17 @@ You should not need usually to call this function directly, as it is called
 by dsc_search() if the auth-token has not be set.
 
 The username and password can be passed into the function, or can be set via
-options(). See the example below
+and environment variable. See the examples below.
 }
 \examples{
   dsc_login("bill.gates@microsoft.com", "passw0rd!")
 
-  # will also use options
-  options("dsc.email" = "bill.gates@microsoft.com")
-  options("dsc.password" = "passw0rd!")
+  # You can also set environment variables
+  Sys.setenv("dsc.email" = "bill.gates@microsoft.com")
+  Sys.setenv("dsc.password" = "passw0rd!")
 
   dsc_login()
+
+  # These credentials can also be stored in the .Renviron file in the current
+  # directory
 }

@@ -25,7 +25,5 @@ Results as a data.fram, or JSON object if single_page = T
 DSC search results
 }
 \examples{
-# assuming credentials are stored in options()
-
 results = dsc_search(term = "venlafaxine")
 }

@@ -1,19 +1,3 @@
-.onLoad <- function(libname, pkgname) {
-  op <- options()
-  op.dsc <- list(
-    dsc.email = NULL,
-    dsc.password = NULL
-  )
-  toset <- !(names(op.dsc) %in% names(op))
-  if(any(toset)) options(op.dsc[toset])
-
-  invisible()
-}
-
-.onAttach <- function(libname, pkgname) {
-  packageStartupMessage("drugshortagesr: set options dsc.email and dsc.password with your credentials")
-}
-
 #' Login to the drugshortagescanada.ca web API
 #'
 #' This function logs in to the DSC web API and stores the auth-token in the
@@ -23,7 +7,7 @@
 #' by dsc_search() if the auth-token has not be set.
 #'
 #' The username and password can be passed into the function, or can be set via
-#' options(). See the example below
+#' and environment variable. See the examples below.
 #'
 #' @param email Your email address used to log into the DSC
 #' @param password Your password
@@ -32,17 +16,20 @@
 #' @examples
 #'   dsc_login("bill.gates@microsoft.com", "passw0rd!")
 #'
-#'   # will also use options
-#'   options("dsc.email" = "bill.gates@microsoft.com")
-#'   options("dsc.password" = "passw0rd!")
+#'   # You can also set environment variables
+#'   Sys.setenv("dsc.email" = "bill.gates@microsoft.com")
+#'   Sys.setenv("dsc.password" = "passw0rd!")
 #'
 #'   dsc_login()
+#'
+#'   # These credentials can also be stored in the .Renviron file in the current
+#'   # directory
 dsc_login = function (email, password) {
   if (missing(email)) {
-    email = getOption("dsc.email")
+    email = Sys.getenv("dsc.email", unset = NA)
   }
   if (missing(password)) {
-    password = getOption("dsc.password")
+    password = Sys.getenv("dsc.password", unset = NA)
   }
   if (is.null(email) | is.null(password)) {
     stop("email/password must be specified")
@@ -124,8 +111,6 @@ dsc_login = function (email, password) {
 #' @export
 #'
 #' @examples
-#' # assuming credentials are stored in options()
-#'
 #' results = dsc_search(term = "venlafaxine")
 dsc_search = function(..., single_page = F, flattened = T) {
   if (single_page) {
