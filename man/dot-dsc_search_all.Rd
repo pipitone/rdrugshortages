@@ -4,10 +4,12 @@
 \alias{.dsc_search_all}
 \title{Return all records from a search}
 \usage{
-.dsc_search_all(...)
+.dsc_search_all(..., max_pages = Inf)
 }
 \arguments{
 \item{...}{name = value pairs of query parameters.}
+
+\item{max_pages}{}
 }
 \value{
 nested data.frame of results

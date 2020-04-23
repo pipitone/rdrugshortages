@@ -4,26 +4,21 @@
 \alias{dsc_search}
 \title{DSC search results}
 \usage{
-dsc_search(..., single_page = F, flattened = T)
+dsc_search(..., format = "tidy")
 }
 \arguments{
 \item{...}{A named list of query parameters.
 See the DSC Web API documentation for details on query parameters:
 https://www.drugshortagescanada.ca/blog/52}
 
-\item{single_page}{If TRUE only returns the first page of results as a JSON
-object. This is useful only if you care about the metadata about the search
-returned by the database. See the API documentation for details.}
-
-\item{flattened}{If TRUE returns a flat-ish data.frame of the results using
-jsonlite::flatten. This does not apply if single_page = TRUE}
+\item{format}{The default 'tidy' returns a tibble with columns converted to
+the appropriate data types. Use 'json' to get results as returned by
+the API in JSON format after using jsonlite::rbind_pages to concatenate
+multiple pages of results.}
 }
 \value{
-Results as a data.fram, or JSON object if single_page = T
+Results formatted according to format
 }
 \description{
 DSC search results
-}
-\examples{
-results = dsc_search(term = "venlafaxine")
 }

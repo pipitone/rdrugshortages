@@ -1,0 +1,151 @@
+{
+    "total": 1,
+    "limit": 50,
+    "offset": 0,
+    "page": 1,
+    "remaining": 0,
+    "data": [
+        {
+            "id": 75200,
+            "drug": {
+                "current_status": "MARKETED",
+                "id": 40,
+                "drug_code": 10044,
+                "updated_date": "2019-02-04T22:30:05-0500",
+                "company": {
+                    "id": 6,
+                    "created_date": "2017-03-09T13:22:33-0500",
+                    "updated_date": "2017-03-09T13:22:33-0500",
+                    "company_code": 3699,
+                    "mfr_code": "BAX08",
+                    "name": "BAXTER CORPORATION",
+                    "company_type": "DIN OWNER",
+                    "address_mailing_flag": true,
+                    "address_billing_flag": true,
+                    "address_notification_flag": true,
+                    "address_other": false,
+                    "address_report_display": true,
+                    "suite_number": "",
+                    "street_name": "7125 MISSISSAUGA ROAD",
+                    "province": "ONTARIO",
+                    "country": "CANADA",
+                    "city": "MISSISSAUGA",
+                    "postal_code": "L5N 0C2",
+                    "post_office_box": ""
+                },
+                "drug_ingredients": [
+                    {
+                        "id": 90657,
+                        "ingredient": {
+                            "id": 10,
+                            "ingredient_code": 42,
+                            "en_name": "DEXTROSE",
+                            "fr_name": "Dextrose"
+                        },
+                        "ingredient_supplied_ind": "I",
+                        "strength": "5",
+                        "strength_unit": "G",
+                        "strength_type": "",
+                        "dosage_value": "100",
+                        "dosage_unit": "ML",
+                        "base": false
+                    },
+                    {
+                        "id": 90658,
+                        "ingredient": {
+                            "id": 16,
+                            "ingredient_code": 55,
+                            "en_name": "SODIUM CHLORIDE",
+                            "fr_name": "Chlorure de sodium"
+                        },
+                        "ingredient_supplied_ind": "I",
+                        "strength": "450",
+                        "strength_unit": "MG",
+                        "strength_type": "",
+                        "dosage_value": "100",
+                        "dosage_unit": "ML",
+                        "base": false
+                    },
+                    {
+                        "id": 90659,
+                        "ingredient": {
+                            "id": 44,
+                            "ingredient_code": 53,
+                            "en_name": "POTASSIUM CHLORIDE",
+                            "fr_name": "Chlorure de potassium"
+                        },
+                        "ingredient_supplied_ind": "I",
+                        "strength": "150",
+                        "strength_unit": "MG",
+                        "strength_type": "",
+                        "dosage_value": "100",
+                        "dosage_unit": "ML",
+                        "base": false
+                    }
+                ],
+                "din": "00437999",
+                "brand_name": "(20MMOL/L) POTASSIUM CHLORIDE IN 5% DEXTROSE AND 0.45% SODIUM CHLORIDE INJECTION USP",
+                "brand_name_fr": "",
+                "descriptor": "",
+                "pediatric_flag": false,
+                "accession_number": "69690",
+                "number_of_ais": "3",
+                "ai_group_no": "0300097005"
+            },
+            "created_date": "2019-02-08T21:58:14-0500",
+            "type": {
+                "id": 1,
+                "label": "shortage"
+            },
+            "din": "00437999",
+            "company_name": "BAXTER CORPORATION",
+            "atc_number": "B05BB",
+            "atc_description": "I.V. SOLUTIONS",
+            "anticipated_start_date": "2019-02-08T00:00:00-0500",
+            "estimated_end_date": "2019-02-12T00:00:00-0500",
+            "actual_start_date": "2019-02-08T00:00:00-0500",
+            "actual_end_date": "2019-02-12T00:00:00-0500",
+            "decision_reversal": false,
+            "shortage_reason": {
+                "id": 9,
+                "en_reason": "Demand increase for the drug.",
+                "fr_reason": "Augmentation de la demande pour le médicament",
+                "active": true
+            },
+            "updated_date": "2019-02-13T13:20:34-0500",
+            "status": "resolved",
+            "en_comments": "JB1134 - 20 mmol Potassium Chloride in 5% Dextrose Injection USP or JB1424 - 20 mmol\r\nPotassium Chloride in 3.3% Dextrose and 0.3% Sodium Chloride Injection USP are available as possible alternatives.  For questions or concerns contact Baxter customer care (1.888.719.9955) or your local representative.",
+            "fr_comments": "D'autres produits sont disponible : JB1134 - 20 mmol de chlorure de potassium dans\r\n5% de dextrose injectable USP or JB1424 - 20 mmol de chlorure de potassium dans 3.3% de dextrose et 0.3% de chlorure de sodium injectable USP.  Pour toutes questions, veuillez contacter le service clientèle de Baxter (1.888.719.9955) ou votre représentant local.",
+            "en_drug_brand_name": "(20MMOL/L) POTASSIUM CHLORIDE IN 5% DEXTROSE AND 0.45% SODIUM CHLORIDE INJECTION USP",
+            "en_drug_common_name": "Potassium Chloride in 5% Dextrose Injection",
+            "fr_drug_brand_name": "Potassium Chloride in 5% Dextrose injection",
+            "fr_drug_common_name": "Potassium Chloride in 5% Dextrose injection",
+            "en_ingredients": "DEXTROSE\r\nPOTASSIUM CHLORIDE\r\nSODIUM CHLORIDE",
+            "fr_ingredients": "Dextrose\r\nChlorure de potassium\r\nChlorure de sodium",
+            "drug_strength": "5G\r\n150MG\r\n450MG",
+            "drug_dosage_form": "SOLUTION",
+            "drug_dosage_form_fr": "Solution",
+            "drug_route": "INTRAVENOUS",
+            "drug_route_fr": "Intraveineuse",
+            "drug_package_quantity": "1000 mL",
+            "resolved": true,
+            "avoided": false,
+            "advance": true,
+            "late_submission": false,
+            "shortage_duplicated": true,
+            "discontinuance_duplicated": true,
+            "draft": false,
+            "discontinuation_duplication": false,
+            "shortage_duplication": false,
+            "unknown_estimated_end_date": false,
+            "marker_a1": false,
+            "marker_a2": false,
+            "marker_a3": false,
+            "marker_b1": false,
+            "marker_b2": false,
+            "marker_b3": false,
+            "late_marker_disabled": false
+        }
+    ],
+    "total_pages": 1
+}

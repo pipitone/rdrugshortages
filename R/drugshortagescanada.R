@@ -1,63 +1,53 @@
 #' Login to the drugshortagescanada.ca web API
 #'
-#' This function logs in to the DSC web API and stores the auth-token in the
-#' 'dsc.authtoken' R environment variable so that it is accessible dsc_search()
-#'
-#' You should not need usually to call this function directly, as it is called
-#' by dsc_search() if the auth-token has not be set.
+#' This function logs in to the DSC web API and stores the temporary
+#' authentication token so that it is accessible by dsc_search()
 #'
 #' The username and password can be passed into the function, or can be set via
-#' and environment variable. See the examples below.
+#' environment variables in .Renviron, or directly like so:
 #'
-#' @param email Your email address used to log into the DSC
-#' @param password Your password
-#' @export
-#'
-#' @examples
-#'   dsc_login('bill.gates@microsoft.com', 'passw0rd!')
-#'
-#'   # You can also set environment variables
 #'   Sys.setenv('dsc.email' = 'bill.gates@microsoft.com')
 #'   Sys.setenv('dsc.password' = 'passw0rd!')
 #'
 #'   dsc_login()
 #'
-#'   # These credentials can also be stored in the .Renviron file in the current
-#'   # directory
-dsc_login = function(email, password) {
+#' @param email Your email address used to log into the DSC
+#' @param password Your password
+#' @return authentication token
+#' @export
+dsc_authtoken = function(email, password, reuse_authtoken=F) {
+  if (reuse_authtoken & !is.null(.state$dsc.authtoken)) {
+    return (.state$dsc.authtoken)
+  }
   if (missing(email)) {
     email = Sys.getenv("dsc.email", unset = NA)
   }
   if (missing(password)) {
     password = Sys.getenv("dsc.password", unset = NA)
   }
-  if (is.null(email) | is.null(password)) {
-    stop("email/password must be specified")
+  if (is.na(email) | is.na(password)) {
+    stop("email and/or password not provided.")
   }
-  
+
   r = httr::POST("https://www.drugshortagescanada.ca/api/v1/login", body = list(email = email, password = password))
   httr::stop_for_status(r, httr::content(r, as = "text"))
   authtoken = httr::headers(r)$`auth-token`
-  Sys.setenv(dsc.authtoken = authtoken)
+  if (is.null(authtoken)) {
+    stop("auth-token not provided by endpoint")
+  }
+  .state$dsc.authtoken = authtoken
+
+  authtoken
 }
 
-
-#' Return a single page of search results
+#' A single page of search results
 #'
 #' @param ... name = value pairs of query parameters.
-#'
-#' @return A JSON blog of search results. The 'data' field contains the matching records.
-.dsc_search_single_page = function(...) {
-  
-  if (!"dsc.authtoken" %in% names(Sys.getenv())) {
-    try(dsc_login())
-  }
-  
-  authtoken = Sys.getenv("dsc.authtoken")
-  if (authtoken == "") {
-    stop("Environment variable dsc.authtoken not set. See dsc_login()")
-  }
-  
+#' @return An R representation of JSON search results via jsonlite::fromJSON
+#'   records.
+.dsc_search_once = function(...) {
+  authtoken = dsc_authtoken(reuse_authtoken = T)
+
   r = httr::GET("https://www.drugshortagescanada.ca/api/v1/search", httr::add_headers(`auth-token` = authtoken), query = list(...))
   httr::stop_for_status(r, httr::content(r, as = "text"))
   return(jsonlite::fromJSON(httr::content(r, as = "text", encoding = "UTF-8")))
@@ -66,28 +56,32 @@ dsc_login = function(email, password) {
 #' Return all records from a search
 #'
 #' @param ... name = value pairs of query parameters.
+#' @param max_pages Stop after this many pages of results
 #'
 #' @return  nested data.frame of results
-.dsc_search_all = function(...) {
+.dsc_search_all = function(..., max_pages = Inf) {
   query = list(...)
-  query[["limit"]] = "1000"  # optimisitic...
-  results = do.call(.dsc_search_single_page, query)
-  
-  # TODO: empty search results TODO: total < limit results
-  
-  limit = results$limit
-  total = results$total
-  offset = results$offset
-  
-  all_results = list(results$data)
-  
-  for (offset in seq(offset + limit, total - 1, limit)) {
-    query[["offset"]] = offset
-    
-    results = do.call(.dsc_search_single_page, query)
-    all_results = c(all_results, list(results$data))
+
+  if (is.null(query$limit)) {
+    query$limit = 1000   # some optimistically large number. 0 doesn't work.
   }
-  return(jsonlite::rbind_pages(all_results))
+
+  results = do.call(.dsc_search_once, query)
+  all_results = list(results$data)
+  pages = 1
+
+  while(results$remaining > 0 & pages < max_pages) {
+    query$offset = results$offset + nrow(results$data)
+    results = do.call(.dsc_search_once, query)
+    all_results = c(all_results, list(results$data))
+    pages = pages + 1
+  }
+
+  if (!length(unlist(all_results))) {
+    return (as.data.frame(all_results))
+  } else {
+    return(jsonlite::rbind_pages(all_results))
+  }
 }
 
 #' DSC search results
@@ -95,24 +89,40 @@ dsc_login = function(email, password) {
 #' @param ... A named list of query parameters.
 #'   See the DSC Web API documentation for details on query parameters:
 #'   https://www.drugshortagescanada.ca/blog/52
-#' @param single_page If TRUE only returns the first page of results as a JSON
-#'   object. This is useful only if you care about the metadata about the search
-#'   returned by the database. See the API documentation for details.
-#' @param flattened If TRUE returns a flat-ish data.frame of the results using
-#'   jsonlite::flatten. This does not apply if single_page = TRUE
-#' @return Results as a data.fram, or JSON object if single_page = T
+#' @param format The default 'tidy' returns a tibble with columns converted to
+#'   the appropriate data types. Use 'json' to get results as returned by
+#'   the API in JSON format after using jsonlite::rbind_pages to concatenate
+#'   multiple pages of results.
+#' @param max_pages Limit the number of requests made to the API. The number of
+#'   results returned will depend on the total results, and the limit and offset
+#'   parameters if supplied.
+#' @return Results formatted according to format
 #' @export
-#'
-#' @examples
-#' results = dsc_search(term = 'venlafaxine')
-dsc_search = function(..., single_page = F, flattened = T) {
-  if (single_page) {
-    results = do.call(.dsc_search_single_page, list(...))
-  } else {
-    results = do.call(.dsc_search_all, list(...))
-    if (flattened) {
-      return(jsonlite::flatten(results))
-    }
+dsc_search = function(..., format = 'tidy', max_pages = Inf) {
+  v1_params = c('limit', 'offset', 'orderby', 'order', 'filter_status', 'term', 'din', 'report_id')
+  query = list(...)
+  unknown_params = setdiff(names(query), v1_params)
+  if (length(unknown_params)>0) {
+    unknown = paste(unknown_params, collapse=", ")
+    allowed = paste(v1_params, collapse=", ")
+    stop(paste0("Unexpected search parameter(s): ", unknown,
+               "\nAllowed parameters are: ", allowed))
   }
-  return(results)
+
+
+
+  if (!(format %in% c('tidy', 'json'))) {
+    stop("unknown format")
+  }
+
+  results = do.call(.dsc_search_all, list(..., max_pages = max_pages))
+  return (
+    switch(format,
+         'tidy' = .dsc_tidy_results(results),
+         'json' = results)
+    )
+}
+
+.dsc_tidy_results = function(results) {
+  dplyr::as_tibble(jsonlite::flatten(results))
 }
