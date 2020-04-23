@@ -9,7 +9,7 @@
 \arguments{
 \item{...}{name = value pairs of query parameters.}
 
-\item{max_pages}{}
+\item{max_pages}{Stop after this many pages of results}
 }
 \value{
 nested data.frame of results

@@ -10,17 +10,23 @@ dsc_authtoken(email, password, reuse_authtoken = F)
 \item{email}{Your email address used to log into the DSC}
 
 \item{password}{Your password}
+
+\item{reuse_authtoken}{If an authentication token has already been retrieved
+this session, then return it without logging in again via the API}
 }
 \value{
 authentication token
 }
 \description{
 This function logs in to the DSC web API and stores the temporary
-authentication token so that it is accessible by dsc_search()
+authentication token so that it can be used by other API calls.
 }
 \details{
-The username and password can be passed into the function, or can be set via
-environment variables in .Renviron, or directly like so:
+You shouldn't usually need to call this function directly, as dsc_search()
+will automatically do so.
+
+The username and password can be passed into the function explicitly, or can
+be set via environment variables in .Renviron, or directly like so:
 
   Sys.setenv('dsc.email' = 'bill.gates@microsoft.com')
   Sys.setenv('dsc.password' = 'passw0rd!')

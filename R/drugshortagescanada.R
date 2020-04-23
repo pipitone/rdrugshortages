@@ -1,10 +1,13 @@
 #' Login to the drugshortagescanada.ca web API
 #'
 #' This function logs in to the DSC web API and stores the temporary
-#' authentication token so that it is accessible by dsc_search()
+#' authentication token so that it can be used by other API calls.
 #'
-#' The username and password can be passed into the function, or can be set via
-#' environment variables in .Renviron, or directly like so:
+#' You shouldn't usually need to call this function directly, as dsc_search()
+#' will automatically do so.
+#'
+#' The username and password can be passed into the function explicitly, or can
+#' be set via environment variables in .Renviron, or directly like so:
 #'
 #'   Sys.setenv('dsc.email' = 'bill.gates@microsoft.com')
 #'   Sys.setenv('dsc.password' = 'passw0rd!')
@@ -13,6 +16,8 @@
 #'
 #' @param email Your email address used to log into the DSC
 #' @param password Your password
+#' @param reuse_authtoken If an authentication token has already been retrieved
+#'   this session, then return it without logging in again via the API
 #' @return authentication token
 #' @export
 dsc_authtoken = function(email, password, reuse_authtoken=F) {
@@ -84,7 +89,12 @@ dsc_authtoken = function(email, password, reuse_authtoken=F) {
   }
 }
 
-#' DSC search results
+#' Query the DSC
+#'
+#' The search API is documented here:
+#' https://www.drugshortagescanada.ca/blog/52
+#'
+#'
 #'
 #' @param ... A named list of query parameters.
 #'   See the DSC Web API documentation for details on query parameters:
@@ -109,8 +119,6 @@ dsc_search = function(..., format = 'tidy', max_pages = Inf) {
                "\nAllowed parameters are: ", allowed))
   }
 
-
-
   if (!(format %in% c('tidy', 'json'))) {
     stop("unknown format")
   }
@@ -123,6 +131,13 @@ dsc_search = function(..., format = 'tidy', max_pages = Inf) {
     )
 }
 
+#' Tidy up DSC search results
+#'
+#' Accepts the raw JSON-to-data.frame search results object and converts columns
+#' to their appropriate data types (dates, factors, etc)
+#'
+#' @param results search results as data.frame
+#' @return tibble
 .dsc_tidy_results = function(results) {
   dplyr::as_tibble(jsonlite::flatten(results))
 }

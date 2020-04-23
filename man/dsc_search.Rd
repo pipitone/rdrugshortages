@@ -2,9 +2,9 @@
 % Please edit documentation in R/drugshortagescanada.R
 \name{dsc_search}
 \alias{dsc_search}
-\title{DSC search results}
+\title{Query the DSC}
 \usage{
-dsc_search(..., format = "tidy")
+dsc_search(..., format = "tidy", max_pages = Inf)
 }
 \arguments{
 \item{...}{A named list of query parameters.
@@ -15,10 +15,15 @@ https://www.drugshortagescanada.ca/blog/52}
 the appropriate data types. Use 'json' to get results as returned by
 the API in JSON format after using jsonlite::rbind_pages to concatenate
 multiple pages of results.}
+
+\item{max_pages}{Limit the number of requests made to the API. The number of
+results returned will depend on the total results, and the limit and offset
+parameters if supplied.}
 }
 \value{
 Results formatted according to format
 }
 \description{
-DSC search results
+The search API is documented here:
+https://www.drugshortagescanada.ca/blog/52
 }
