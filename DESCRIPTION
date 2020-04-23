@@ -1,17 +1,20 @@
-Package: drugshortagesr
+Package: rdrugshortages
 Type: Package
-Title: Drug Shortages API
-Version: 0.1.0
+Title: Access Drug Shortage Report Databases
+Version: 1.0.0
 Authors@R: person("Jon", "Pipitone", email = "jon@pipitone.ca", role = c("aut", "cre"))
 Maintainer: Jon Pipitone <jon@pipitone.ca>
-Description: Accesses drug shortages data
-License: MIT
+Description: Provides programmatic access to drug shortage report databases via web API. Results are returned as flat data tables to make analysis easy. The package currently supports the following countries: Canada.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports:
+Imports: 
   dplyr,
   httr,
   jsonlite
-RoxygenNote: 7.0.2
-URL: http://github.com/pipitone/drugshortagesr
-BugReports: http://github.com/pipitone/drugshortagesr/issues
+RoxygenNote: 7.1.0
+URL: http://github.com/pipitone/rdrugshortages
+BugReports: http://github.com/pipitone/rdrugshortages/issues
+Suggests: 
+    httptest,
+    testthat (>= 2.1.0)
