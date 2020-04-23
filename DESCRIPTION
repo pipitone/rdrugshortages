@@ -24,4 +24,7 @@ URL: http://github.com/pipitone/rdrugshortages
 BugReports: http://github.com/pipitone/rdrugshortages/issues
 Suggests: 
     httptest,
-    testthat (>= 2.1.0)
+    testthat (>= 2.1.0),
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
