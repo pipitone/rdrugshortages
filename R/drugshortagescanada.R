@@ -20,29 +20,28 @@
 #'   this session, then return it without logging in again via the API
 #' @return authentication token
 #' @export
-dsc_authtoken = function(email, password, reuse_authtoken=F) {
-  if (reuse_authtoken & !is.null(.state$dsc.authtoken)) {
-    return (.state$dsc.authtoken)
-  }
-  if (missing(email)) {
-    email = Sys.getenv("dsc.email", unset = NA)
-  }
-  if (missing(password)) {
-    password = Sys.getenv("dsc.password", unset = NA)
-  }
-  if (is.na(email) | is.na(password)) {
-    stop("email and/or password not provided.")
-  }
+dsc_authtoken <- function(email, password, reuse_authtoken = F) {
+    if (reuse_authtoken & !is.null(.state$dsc.authtoken)) {
+        return(.state$dsc.authtoken)
+    }
+    if (missing(email)) {
+        email <- Sys.getenv("dsc.email", unset = NA)
+    }
+    if (missing(password)) {
+        password <- Sys.getenv("dsc.password", unset = NA)
+    }
+    if (is.na(email) | is.na(password)) {
+        stop("email and/or password not provided.")
+    }
+    r <- httr::POST("https://www.drugshortagescanada.ca/api/v1/login", body = list(email = email, password = password))
+    httr::stop_for_status(r, httr::content(r, as = "text"))
+    authtoken <- httr::headers(r)$`auth-token`
+    if (is.null(authtoken)) {
+        stop("auth-token not provided by endpoint")
+    }
+    .state$dsc.authtoken <- authtoken
 
-  r = httr::POST("https://www.drugshortagescanada.ca/api/v1/login", body = list(email = email, password = password))
-  httr::stop_for_status(r, httr::content(r, as = "text"))
-  authtoken = httr::headers(r)$`auth-token`
-  if (is.null(authtoken)) {
-    stop("auth-token not provided by endpoint")
-  }
-  .state$dsc.authtoken = authtoken
-
-  authtoken
+    authtoken
 }
 
 #' A single page of search results
@@ -50,12 +49,11 @@ dsc_authtoken = function(email, password, reuse_authtoken=F) {
 #' @param ... name = value pairs of query parameters.
 #' @return An R representation of JSON search results via jsonlite::fromJSON
 #'   records.
-.dsc_search_once = function(...) {
-  authtoken = dsc_authtoken(reuse_authtoken = T)
-
-  r = httr::GET("https://www.drugshortagescanada.ca/api/v1/search", httr::add_headers(`auth-token` = authtoken), query = list(...))
-  httr::stop_for_status(r, httr::content(r, as = "text"))
-  return(jsonlite::fromJSON(httr::content(r, as = "text", encoding = "UTF-8")))
+.dsc_search_once <- function(...) {
+    authtoken <- dsc_authtoken(reuse_authtoken = T)
+    r <- httr::GET("https://www.drugshortagescanada.ca/api/v1/search", httr::add_headers(`auth-token` = authtoken), query = list(...))
+    httr::stop_for_status(r, httr::content(r, as = "text"))
+    return(jsonlite::fromJSON(httr::content(r, as = "text", encoding = "UTF-8")))
 }
 
 #' Return all records from a search
@@ -64,29 +62,29 @@ dsc_authtoken = function(email, password, reuse_authtoken=F) {
 #' @param max_pages Stop after this many pages of results
 #'
 #' @return  nested data.frame of results
-.dsc_search_all = function(..., max_pages = Inf) {
-  query = list(...)
+.dsc_search_all <- function(..., max_pages = Inf) {
+    query <- list(...)
 
-  if (is.null(query$limit)) {
-    query$limit = 1000   # some optimistically large number. 0 doesn't work.
-  }
+    if (is.null(query$limit)) {
+        query$limit <- 1000  # some optimistically large number. 0 doesn't work.
+    }
 
-  results = do.call(.dsc_search_once, query)
-  all_results = list(results$data)
-  pages = 1
+    results <- do.call(.dsc_search_once, query)
+    all_results <- list(results$data)
+    pages <- 1
 
-  while(results$remaining > 0 & pages < max_pages) {
-    query$offset = results$offset + nrow(results$data)
-    results = do.call(.dsc_search_once, query)
-    all_results = c(all_results, list(results$data))
-    pages = pages + 1
-  }
+    while (results$remaining > 0 & pages < max_pages) {
+        query$offset <- results$offset + nrow(results$data)
+        results <- do.call(.dsc_search_once, query)
+        all_results <- c(all_results, list(results$data))
+        pages <- pages + 1
+    }
 
-  if (!length(unlist(all_results))) {
-    return (as.data.frame(all_results))
-  } else {
-    return(jsonlite::rbind_pages(all_results))
-  }
+    if (!length(unlist(all_results))) {
+        return(as.data.frame(all_results))
+    } else {
+        return(jsonlite::rbind_pages(all_results))
+    }
 }
 
 #' Query the DSC
@@ -108,27 +106,22 @@ dsc_authtoken = function(email, password, reuse_authtoken=F) {
 #'   parameters if supplied.
 #' @return Results formatted according to format
 #' @export
-dsc_search = function(..., format = 'tidy', max_pages = Inf) {
-  v1_params = c('limit', 'offset', 'orderby', 'order', 'filter_status', 'term', 'din', 'report_id')
-  query = list(...)
-  unknown_params = setdiff(names(query), v1_params)
-  if (length(unknown_params)>0) {
-    unknown = paste(unknown_params, collapse=", ")
-    allowed = paste(v1_params, collapse=", ")
-    stop(paste0("Unexpected search parameter(s): ", unknown,
-               "\nAllowed parameters are: ", allowed))
-  }
+dsc_search <- function(..., format = "tidy", max_pages = Inf) {
+    v1_params <- c("limit", "offset", "orderby", "order", "filter_status", "term", "din", "report_id")
+    query <- list(...)
+    unknown_params <- setdiff(names(query), v1_params)
+    if (length(unknown_params) > 0) {
+        unknown <- paste(unknown_params, collapse = ", ")
+        allowed <- paste(v1_params, collapse = ", ")
+        stop(paste0("Unexpected search parameter(s): ", unknown, "\nAllowed parameters are: ", allowed))
+    }
 
-  if (!(format %in% c('tidy', 'json'))) {
-    stop("unknown format")
-  }
+    if (!(format %in% c("tidy", "json"))) {
+        stop("unknown format")
+    }
 
-  results = do.call(.dsc_search_all, list(..., max_pages = max_pages))
-  return (
-    switch(format,
-         'tidy' = .dsc_tidy_results(results),
-         'json' = results)
-    )
+    results <- do.call(.dsc_search_all, list(..., max_pages = max_pages))
+    return(switch(format, tidy = .dsc_tidy_results(results), json = results))
 }
 
 #' Tidy up DSC search results
@@ -138,6 +131,6 @@ dsc_search = function(..., format = 'tidy', max_pages = Inf) {
 #'
 #' @param results search results as data.frame
 #' @return tibble
-.dsc_tidy_results = function(results) {
-  dplyr::as_tibble(jsonlite::flatten(results))
+.dsc_tidy_results <- function(results) {
+    dplyr::as_tibble(jsonlite::flatten(results))
 }
