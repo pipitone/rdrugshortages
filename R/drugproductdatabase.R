@@ -13,7 +13,7 @@ dpd_download <- function(data_dir = "data/") {
     }
 
     for (f in c("allfiles.zip", "allfiles_ia.zip", "allfiles_ap.zip", "allfiles_dr.zip")) {
-        destfile <- paste0(data_dir, f)
+        destfile <- file.path(data_dir, f)
         url <- paste0(dpd_base_url, f)
         utils::download.file(url, destfile, quiet = T)
         utils::unzip(destfile, exdir = data_dir)
