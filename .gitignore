@@ -3,3 +3,5 @@ packrat/lib*/
 .Rhistory
 .Renviron
 inst/doc
+doc
+Meta
