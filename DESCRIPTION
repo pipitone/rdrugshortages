@@ -4,9 +4,11 @@ Title: Access Drug Shortage Report Databases
 Version: 0.9.0
 Authors@R: person("Jon", "Pipitone", email = "jon@pipitone.ca", role = c("aut", "cre"))
 Maintainer: Jon Pipitone <jon@pipitone.ca>
-Description: Provides programmatic access to drug shortage report databases via web API.
-   Results are returned as flat data tables to make analysis easy. The package currently 
-   supports the following countries: Canada.
+Description: Provides programmatic access to drug shortage report databases.
+   Results are returned as flat data tables to make analysis easy. The package
+   currently only supports the Drug Shortages Canada Database
+   <https://www.drugshortagescanada.ca/blog/52>, and the Health Canada Drug
+   Product Database <https://health-products.canada.ca/dpd-bdpp/index-eng.jsp>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
