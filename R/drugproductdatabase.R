@@ -1,11 +1,8 @@
-#' Downloads the DPD extracts and unzips them
-#'
-#' This function downloads all of the available sections (current, inactive,
-#' etc..) of the current DPD extract.
+#' Downloads all sections of the DPD extracts and unzips them
 #'
 #' @param data_dir  target directory to download to
-#' @export
-dpd_download <- function(data_dir = "data/") {
+#' @return none
+.dpd_download <- function(data_dir) {
     dpd_base_url <- "https://www.canada.ca/content/dam/hc-sc/documents/services/drug-product-database/"
 
     if (!dir.exists(data_dir)) {
@@ -20,16 +17,23 @@ dpd_download <- function(data_dir = "data/") {
     }
 }
 
-#' Loads the DPD into memory from a downloaded extract
+#' Loads the DPD
 #'
-#' Each section of the DPD extract is merged together on a per-table basis.
+#' Loads the entire Drug Product Database from a cached copy stored on the
+#' filesystem. All tables are returned in a named list, and all sections
+#' (current, inactive, etc) are merged on a per-table bases.
 #'
-#' @param data_dir    target directory where extract is stored. Use
-#'   dpd_download() to fetch and unpack the latest extract.
+#' @param data_dir target directory where extract is stored.
+#' @param download  TRUE if a fresh copy of the extract should be downloaded
+#'  before being loaded.
 #' @return A named list of each table as a data.frame
 #' @export
 #' @importFrom magrittr %>%
-dpd_load <- function(data_dir = "data/") {
+dpd_load <- function(data_dir = "data/", download = T) {
+    if (download) {
+        .dpd_download(data_dir = data_dir)
+    }
+    stopifnot(dir.exists(data_dir))
     tables <- list(
       comp = c("DRUG_CODE", "MFR_CODE", "COMPANY_CODE", "COMPANY_NAME", "COMPANY_TYPE", "ADDRESS_MAILING_FLAG", "ADDRESS_BILLING_FLAG", "ADDRESS_NOTIFICATION_FLAG",  "ADDRESS_OTHER", "SUITE_NUMBER", "STREET_NAME", "CITY_NAME", "PROVINCE", "COUNTRY", "POSTAL_CODE", "POST_OFFICE_BOX", "PROVINCE_F", "COUNTRY_F"),
       form = c("DRUG_CODE", "PHARM_FORM_CODE", "PHARMACEUTICAL_FORM", "PHARMACEUTICAL_FORM_F"),

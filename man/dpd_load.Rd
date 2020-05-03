@@ -2,17 +2,21 @@
 % Please edit documentation in R/drugproductdatabase.R
 \name{dpd_load}
 \alias{dpd_load}
-\title{Loads the DPD into memory from a downloaded extract}
+\title{Loads the DPD}
 \usage{
-dpd_load(data_dir = "data/")
+dpd_load(data_dir = "data/", download = T)
 }
 \arguments{
-\item{data_dir}{target directory where extract is stored. Use
-dpd_download() to fetch and unpack the latest extract.}
+\item{data_dir}{target directory where extract is stored.}
+
+\item{download}{TRUE if a fresh copy of the extract should be downloaded
+before being loaded.}
 }
 \value{
 A named list of each table as a data.frame
 }
 \description{
-Each section of the DPD extract is merged together on a per-table basis.
+Loads the entire Drug Product Database from a cached copy stored on the
+filesystem. All tables are returned in a named list, and all sections
+(current, inactive, etc) are merged on a per-table bases.
 }

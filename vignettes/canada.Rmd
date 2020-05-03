@@ -92,20 +92,12 @@ search terms.
 
 Accessing Health Canada's Drug Product is much simplier, as you do not need an account. There is no API so `rdrugshortages` simply downloads a copy of [extracts of the database](https://www.canada.ca/en/health-canada/services/drugs-health-products/drug-products/drug-product-database/what-data-extract-drug-product-database.html). The Health Canada site hosts an very important [README](https://www.canada.ca/en/health-canada/services/drugs-health-products/drug-products/drug-product-database/read-file-drug-product-database-data-extract.html) that outlines the schema and contents. 
 
-To use the DPD extract, first use the helper function to download it: 
+To use the DPD extract, use the `dpd_load` function. With `download=T`, this
+function will  create the `data_dir` if it does not already exist, and download
+the latest DPD extract before returning the tables as a `data.frame`:
 
 ```{r, eval=F}
-dpd_download(data_dir="data/")
-```
-
-This function creates the `data_dir` if it does not already exist, and unpacks
-the sections of the extract, producing several dozen files. You can call this
-function in the future to update your local copy of the DPD.
-
-From this point on you can load the tables of the DPD into `data.frames`, like so: 
-
-```{r, eval=F}
-dpd = dpd_load(data_dir="data/")
+dpd = dpd_load(data_dir="data/", download=T)
 ```
 
 This returns a list, with each element a table from the DPD. Each table can be
